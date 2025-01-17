@@ -50,7 +50,6 @@ class TestRunCompareUnaggregatedTSV(unittest.TestCase):
                 self.output_path,
                 self.class_type,
             )
-
         self.assertIn("INFO:root:The Unaggregated TSV files are identical.", log.output)
 
     def test_different_files(self):
@@ -66,12 +65,23 @@ class TestRunCompareUnaggregatedTSV(unittest.TestCase):
         self.input_file1.close()
         self.input_file2.close()
 
-        main(
-            self.input_file1.name,
-            self.input_file2.name,
-            self.columns_to_compare,
-            self.output_path,
-            self.class_type,
+        with self.assertLogs(level="INFO") as log:
+            main(
+                self.input_file1.name,
+                self.input_file2.name,
+                self.columns_to_compare
+                + ["Extra Column"]
+                + ["modified_asparagine_proline_bond_count"],
+                self.output_path,
+                self.class_type,
+            )
+        self.assertIn(
+            "INFO:root:• Column dropped: 'Extra Column' is not present in either file",
+            log.output,
+        )
+        self.assertIn(
+            "INFO:root:• Column dropped: 'modified_asparagine_proline_bond_count' is only present in file 2",
+            log.output,
         )
 
         with open(f"{self.output_path}/{self.file_name}") as f1, open(
