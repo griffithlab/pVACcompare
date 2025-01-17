@@ -1,4 +1,4 @@
-ID	A*29:02	B*45:01	B*82:02	C*06:02	Gene	AA Change	Num Passing Transcripts	Best Peptide	Best Transcript	TSL	Allele	Pos	Prob Pos	Num Passing Peptides	IC50 MT	IC50 WT	%ile MT	%ile WT	RNA Expr	RNA VAF	Allele Expr	RNA Depth	DNA VAF	Tier	Ref Match	Evaluation
+ID	A*29:02	B*45:01	B*82:02	C*06:02	Gene	AA Change	Num Passing Transcripts	Best Peptide	best transcript	TSL	Allele	Pos	Prob Pos	Num Passing Peptides	IC50 MT	IC50 WT	%ile MT	%ile WT	RNA Expr	RNA VAF	Allele Expr	RNA Depth	DNA VAF	Tier	Ref Match	Evaluation
 chr1-154590262-154590263-T-A		6			ADAR	E806V	15	AERMGFTVV	ENST00000368474.9	1	HLA-B*45:01	8	None	6	76.110	61.796	0.100	0.125	131.831	0.348	45.877	1233.0	0.302	Pass	False	Pending
 chr17-5007046-5007047-C-T		2			KIF1C	S433F	3	TEFQIGPEEA	ENST00000320785.10	1	HLA-B*45:01	3	None	4	152.101	166.309	0.350	0.473	121.452	0.298	36.193	1679.0	0.316	Pass	False	Pending
 chr4-108650681-108650682-C-G		2		1	OSTC	F9L	3	YRVPLLVL	ENST00000361564.9	1	HLA-C*06:02	5	None	3	282.169	272.915	0.232	0.202	173.862	0.484	84.149	1028.0	0.462	Pass	False	Pending

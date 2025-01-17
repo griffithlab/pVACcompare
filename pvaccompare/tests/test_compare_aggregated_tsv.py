@@ -61,12 +61,20 @@ class TestRunCompareAggregatedTSV(unittest.TestCase):
         self.input_file1.close()
         self.input_file2.close()
 
-        main(
-            self.input_file1.name,
-            self.input_file2.name,
-            self.columns_to_compare,
-            self.output_path,
-            self.class_type,
+        with self.assertLogs(level="INFO") as log:
+            main(
+                self.input_file1.name,
+                self.input_file2.name,
+                self.columns_to_compare,
+                self.output_path,
+                self.class_type,
+            )
+        self.assertIn(
+            "INFO:root:• Renamed 'best peptide' to 'Best Peptide' in file 1", log.output
+        )
+        self.assertIn(
+            "INFO:root:• Renamed 'best transcript' to 'Best Transcript' in file 2",
+            log.output,
         )
 
         with open(f"{self.output_path}/{self.file_name}") as f1, open(
