@@ -1,6 +1,7 @@
 from compare_tools import *
 import argparse
 import logging
+import os
 
 logging.basicConfig(level=logging.DEBUG, format="%(message)s")
 
@@ -148,19 +149,27 @@ def define_parser():
         help=f"Comma-separated columns to include in the reference match TSV comparison, choices: {', '.join(valid_reference_match_columns)}",
     )
 
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument(
-        "--immuno_release",
-        action="store_true",
-        help="Use this flag if you are comparing results from immuno releases.",
-    )
-    group.add_argument(
-        "--pvactools_release",
-        action="store_true",
-        help="Use this flag if you are comparing results from pvactools releases.",
-    )
-
     return parser
+
+
+def determine_release_type(folder):
+    """
+    Purpose:    Determines the release type based on the presence of specific subdirectories
+    Modifies:   Nothing
+    Returns:    String, release type
+    """
+    if os.path.exists(os.path.join(folder, "MHC_Class_I")) or os.path.exists(
+        os.path.join(folder, "MHC_Class_II")
+    ):
+        return "immuno_release"
+    elif os.path.exists(os.path.join(folder, "pVACseq/mhc_i")) or os.path.exists(
+        os.path.join(folder, "pVACseq/mhc_ii")
+    ):
+        return "pvactools_release"
+    else:
+        raise FileNotFoundError(
+            f"Could not determine release type for folder: {folder}"
+        )
 
 
 def main():
@@ -176,21 +185,25 @@ def main():
     validate_unaggregated_columns(args.unaggregated_columns, parser)
     validate_reference_match_columns(args.reference_match_columns, parser)
 
+    release_type1 = determine_release_type(args.results_folder1)
+    release_type2 = determine_release_type(args.results_folder2)
+
+    if release_type1 != release_type2:
+        raise ValueError(
+            "ERROR: You are trying to compare a pVACtools release with an immuno release"
+        )
+
+    release_type = release_type1
+
     classes_to_run = [args.mhc_class] if args.mhc_class else ["1", "2"]
 
     output_dir = prepare_results_folder(classes_to_run, args.output_dir)
 
     for class_type in classes_to_run:
-        if args.pvactools_release:
-            if class_type == "1":
-                prefix = "MHC_Class_I"
-            elif class_type == "2":
-                prefix = "MHC_Class_II"
+        if release_type == "immuno_release":
+            prefix = "MHC_Class_I" if class_type == "1" else "MHC_Class_II"
         else:
-            if class_type == "1":
-                prefix = "pVACseq/mhc_i"
-            elif class_type == "2":
-                prefix = "pVACseq/mhc_ii"
+            prefix = "pVACseq/mhc_i" if class_type == "1" else "pVACseq/mhc_ii"
         run_comparison(
             class_type,
             prefix,
