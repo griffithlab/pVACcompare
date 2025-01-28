@@ -1,2 +1,2 @@
-from .comparison_router import run_comparison, prepare_results_folder
+from .comparison_router import run_comparison
 from .validators import *
