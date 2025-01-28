@@ -1,6 +1,8 @@
 from compare_tools import *
 import argparse
 import logging
+from datetime import datetime
+import os
 
 logging.basicConfig(level=logging.DEBUG, format="%(message)s")
 
@@ -148,19 +150,21 @@ def define_parser():
         help=f"Comma-separated columns to include in the reference match TSV comparison, choices: {', '.join(valid_reference_match_columns)}",
     )
 
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument(
-        "--immuno_release",
-        action="store_true",
-        help="Use this flag if you are comparing results from immuno releases.",
-    )
-    group.add_argument(
-        "--pvactools_release",
-        action="store_true",
-        help="Use this flag if you are comparing results from pvactools releases.",
-    )
-
     return parser
+
+
+def prepare_results_folder(classes, base_output_dir):
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    unique_output_dir = f"{base_output_dir}/results_{timestamp}"
+
+    os.makedirs(unique_output_dir)
+
+    if "1" in classes:
+        os.makedirs(f"{unique_output_dir}/mhc_class_i")
+    if "2" in classes:
+        os.makedirs(f"{unique_output_dir}/mhc_class_ii")
+
+    return unique_output_dir
 
 
 def main():
@@ -176,24 +180,12 @@ def main():
     validate_unaggregated_columns(args.unaggregated_columns, parser)
     validate_reference_match_columns(args.reference_match_columns, parser)
 
-    classes_to_run = [args.mhc_class] if args.mhc_class else ["1", "2"]
+    classes = [args.mhc_class] if args.mhc_class else ["1", "2"]
+    output_dir = prepare_results_folder(classes, args.output_dir)
 
-    output_dir = prepare_results_folder(classes_to_run, args.output_dir)
-
-    for class_type in classes_to_run:
-        if args.pvactools_release:
-            if class_type == "1":
-                prefix = "MHC_Class_I"
-            elif class_type == "2":
-                prefix = "MHC_Class_II"
-        else:
-            if class_type == "1":
-                prefix = "pVACseq/mhc_i"
-            elif class_type == "2":
-                prefix = "pVACseq/mhc_ii"
+    for class_type in classes:
         run_comparison(
             class_type,
-            prefix,
             args.results_folder1,
             args.results_folder2,
             output_dir,
